@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Raksha Bandhan!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* General Styling & Theme */
+        :root {
+            --gold-color: #FFD700;
+            --silk-red: #8B0000;
+            --royal-blue: #4169E1;
+            --text-light: #f0f0f0;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--silk-red), var(--royal-blue), #2c3e50);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            background: var(--glass-bg);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Header & Imagery */
+        .rakhi-gif {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 3px solid var(--gold-color);
+            box-shadow: 0 0 15px var(--gold-color);
+        }
+
+        /* Animated Greeting Text */
+        .greeting-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--gold-color), #f7e18e, var(--gold-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.3);
+            animation: fadeIn 2s ease-in-out;
+            margin-bottom: 25px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Interactive Input Fields */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            margin-top: 8px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field::placeholder {
+            color: rgba(240, 240, 240, 0.7);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--gold-color);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Dynamic Wish Generation Button */
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1a1a1a;
+            background: var(--gold-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--gold-color);
+        }
+        
+        /* Generated Card */
+        #greeting-card {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            display: none; /* Initially hidden */
+        }
+        
+        #greeting-card.show {
+            display: block; /* Make it visible for animation */
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #personalized-message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: var(--text-light);
+        }
+
+        /* WhatsApp Sharing Button */
+        #share-btn {
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+            background-color: #25D366;
+            color: white;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #share-btn.show {
+            display: inline-flex;
+        }
+        
+        #share-btn:hover {
+            box-shadow: 0 0 20px #25D366;
+        }
+
+        #share-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* Background Ambiance Controls */
+        #audio-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        #audio-control:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        #audio-control svg {
+            fill: var(--text-light);
+            width: 20px;
+            height: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="particle-canvas"></canvas>
+    
+    <div class="container">
+        <img src="rakhi.gif" alt="Rakhi GIF" class="rakhi-gif">
+        
+        <h1 class="greeting-text">Happy Raksha Bandhan!</h1>
+        
+        <div class="input-group">
+            <input type="text" id="senderName" class="input-field" placeholder="Your Name" required>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="siblingName" class="input-field" placeholder="Your Sibling's Name (Optional)">
+        </div>
+        
+        <button id="generate-btn" class="btn">Create Your Rakhi Wish</button>
+        
+        <div id="greeting-card">
+            <p id="personalized-message"></p>
+        </div>
+        
+        <button id="share-btn" class="btn">
+            <svg viewBox="0 0 24 24"><path d="M16.75,13.96C17.09,14.3 17.07,14.88 16.73,15.22C16.22,15.73 15.39,16.23 14.3,16.54C13.14,16.88 11.93,17.04 10.96,17.04C8.24,17.04 6,14.8 6,12.08C6,9.35 8.24,7.12 10.96,7.12C12.16,7.12 13.3,7.43 14.22,8.1L15.66,6.65C14.3,5.47 12.7,4.96 10.96,4.96C7.08,4.96 4,8.19 4,12.08C4,16 7.08,19.2 10.96,19.2C13.23,19.2 15.2,18.43 16.54,17.09C17.43,16.2 18,14.95 18,13.6C18,12.55 17.78,11.53 17.22,10.63L15.78,12.07C16.36,12.68 16.75,13.36 16.75,13.96M20.5,3C20.23,3 20,3.23 20,3.5V6.5H17.5C17.23,6.5 17,6.73 17,7C17,7.27 17.23,7.5 17.5,7.5H20V10.5C20,10.77 20.23,11 20.5,11C20.77,11 21,10.77 21,10.5V7.5H24C24.27,7.5 24.5,7.27 24.5,7C24.5,6.73 24.27,6.5 24,6.5H21V3.5C21,3.23 20.77,3 20.5,3Z"></path></svg>
+            Share on WhatsApp
+        </button>
+        
+    </div>
+
+    <audio id="background-audio" src="song.mp3" loop></audio>
+    
+    <div id="audio-control">
+        <span id="mute-icon">
+            <svg viewBox="0 0 24 24"><path d="M3,9V15H7L12,20V4L7,9H3M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23Z"></path></svg>
+        </span>
+        <span id="unmute-icon" style="display:none;">
+            <svg viewBox="0 0 24 24"><path d="M12,4L7,9H3V15H7L12,20V4M21.5,12C21.5,13.77 20.5,15.29 19,16.03V7.97C20.5,8.71 21.5,10.23 21.5,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12Z"></path></svg>
+        </span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- DOM Element Selection ---
+            const generateBtn = document.getElementById('generate-btn');
+            const shareBtn = document.getElementById('share-btn');
+            const greetingCard = document.getElementById('greeting-card');
+            const personalizedMessage = document.getElementById('personalized-message');
+            const senderNameInput = document.getElementById('senderName');
+            const siblingNameInput = document.getElementById('siblingName');
+            const audio = document.getElementById('background-audio');
+            const audioControl = document.getElementById('audio-control');
+            const muteIcon = document.getElementById('mute-icon');
+            const unmuteIcon = document.getElementById('unmute-icon');
+
+            let hasInteracted = false;
+
+            // --- Audio Control ---
+            audioControl.addEventListener('click', () => {
+                if (audio.muted) {
+                    audio.muted = false;
+                    muteIcon.style.display = 'inline';
+                    unmuteIcon.style.display = 'none';
+                } else {
+                    audio.muted = true;
+                    muteIcon.style.display = 'none';
+                    unmuteIcon.style.display = 'inline';
+                }
+            });
+
+            const playAudio = async () => {
+                if (hasInteracted && audio.paused) {
+                    try {
+                        await audio.play();
+                        audio.muted = false;
+                        muteIcon.style.display = 'inline';
+                        unmuteIcon.style.display = 'none';
+                    } catch (err) {
+                        console.error("Audio playback failed:", err);
+                         // Keep the UI consistent even if play fails
+                        audio.muted = true; 
+                        muteIcon.style.display = 'none';
+                        unmuteIcon.style.display = 'inline';
+                    }
+                }
+            };
+            
+            // --- Wish Generation ---
+            generateBtn.addEventListener('click', () => {
+                if (!hasInteracted) {
+                    hasInteracted = true;
+                    playAudio();
+                }
+
+                const senderName = senderNameInput.value.trim();
+                const siblingName = siblingNameInput.value.trim();
+
+                if (!senderName) {
+                    alert('Please enter your name.');
+                    return;
+                }
+
+                let message;
+                if (siblingName) {
+                    message = `Dearest ${siblingName}, sending you love and a promise of protection, always. Happy Raksha Bandhan! With love, ${senderName} 🎉`;
+                } else {
+                    message = `Wishing you a very Happy Raksha Bandhan! With love from ${senderName} 🎉`;
+                }
+
+                personalizedMessage.textContent = message;
+                greetingCard.classList.add('show');
+                shareBtn.classList.add('show');
+            });
+
+            // --- WhatsApp Sharing ---
+            shareBtn.addEventListener('click', () => {
+                const message = personalizedMessage.textContent;
+                const pageUrl = window.location.href;
+                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message + '\n\nCheck out this greeting: ' + pageUrl)}`;
+                window.open(whatsappUrl, '_blank');
+            });
+            
+            // --- Vanilla JS Particle Animation ---
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let particles = [];
+
+            const particleSettings = {
+                count: 50,
+                maxSize: 3,
+                minSize: 1,
+                speed: 0.5,
+                color: 'rgba(255, 215, 0, 0.7)'
+            };
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * (particleSettings.maxSize - particleSettings.minSize) + particleSettings.minSize;
+                    this.speedX = Math.random() * particleSettings.speed * 2 - particleSettings.speed;
+                    this.speedY = Math.random() * particleSettings.speed * 2 - particleSettings.speed;
+                }
+
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    if (this.size > 0.1) this.size -= 0.01;
+                    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+                }
+
+                draw() {
+                    ctx.fillStyle = particleSettings.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            function initParticles() {
+                for (let i = 0; i < particleSettings.count; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            function handleParticles() {
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                    if(particles[i].size <= 0.1) {
+                        particles.splice(i, 1);
+                        particles.push(new Particle());
+                        i--;
+                    }
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                handleParticles();
+                requestAnimationFrame(animateParticles);
+            }
+            
+            initParticles();
+            animateParticles();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                particles = [];
+                initParticles();
+            });
+        });
+    </script>
+
+</body>
+</html>
