@@ -154,9 +154,9 @@
 
         /* --- Buttons --- */
         .btn {
-            display: inline-block; /* Ensures buttons behave consistently */
+            display: inline-block;
             padding: 15px 30px;
-            margin: 5px; /* Adds a little space between buttons */
+            margin: 5px;
             font-size: 1.1rem;
             font-weight: 500;
             border: none;
@@ -174,9 +174,21 @@
         #generate-btn {
             background: var(--gold-color);
             color: var(--royal-blue);
+            width: 100%; /* Make button full-width */
         }
         
-        #generate-btn:hover { box-shadow: 0 0 25px var(--gold-color); }
+        /* Visual feedback when button is disabled for countdown */
+        #generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #aaa;
+            color: #555;
+        }
+        
+        #generate-btn:hover:disabled {
+            transform: none; /* Prevent hover effect when disabled */
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
 
         /* --- 3D Flip Greeting Card --- */
         #greeting-card {
@@ -207,23 +219,22 @@
             color: var(--text-light);
         }
         
-        /* Container for the action buttons that appear after generation */
         .action-buttons {
-            display: none; /* Hidden by default */
+            display: none;
             flex-direction: column;
             align-items: center;
-            gap: 15px; /* Space between buttons */
+            gap: 15px;
             margin-top: 20px;
         }
         
         .action-buttons.show {
-            display: flex; /* Becomes visible */
+            display: flex;
         }
 
         #share-btn {
             background-color: #25D366;
             color: white;
-            display: flex; /* To align icon and text */
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
@@ -232,18 +243,6 @@
         
         #share-btn:hover { box-shadow: 0 0 20px #25D366; }
         #share-btn svg { width: 24px; height: 24px; fill: white; }
-
-        /* --- ADSTERRA DIRECT LINK BUTTON --- */
-        #premium-wish-btn {
-            background: linear-gradient(45deg, #8A2BE2, #C71585);
-            color: white;
-            font-weight: bold;
-            width: 100%;
-        }
-        
-        #premium-wish-btn:hover {
-            box-shadow: 0 0 25px #C71585;
-        }
 
         /* --- Audio Control --- */
         #audio-control {
@@ -296,16 +295,10 @@
             </div>
         </div>
         
-        <!-- This container holds the buttons that appear after wish generation -->
         <div id="action-buttons-container" class="action-buttons">
             <button id="share-btn" class="btn">
                 <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 12c0 1.77.46 3.45 1.32 4.95L2.05 22l5.3-1.4c1.45.77 3.06 1.18 4.69 1.18h.01c5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zM12.05 20.15c-1.5 0-2.92-.38-4.19-1.09l-.3-.18-3.12.82.83-3.04-.2-.31c-.8-1.32-1.21-2.85-1.21-4.43 0-4.54 3.7-8.24 8.24-8.24 4.54 0 8.24 3.7 8.24 8.24 0 4.55-3.7 8.24-8.24 8.24zm4.52-6.14c-.24-.12-1.42-.7-1.64-.78-.23-.08-.39-.12-.56.12-.17.24-.62.78-.76.94-.14.16-.28.18-.52.06-.24-.12-1-.37-1.9-1.18-.7-.64-1.18-1.43-1.32-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.37-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42s-.56-1.34-.76-1.84c-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.63.3.22.24-.84 1.02-.84 2.48 0 1.46.86 2.88 1 3.08.14.2.62.96 1.52 1.34.9.38 1.63.3 2.12.18.48-.12 1.42-.58 1.62-1.14.2-.56.2-.94.14-1.04-.06-.12-.22-.18-.46-.3z"></path></svg>
                 Share on WhatsApp
-            </button>
-
-            <!-- THIS IS THE NEW BUTTON FOR YOUR ADSTERRA DIRECT LINK -->
-            <button id="premium-wish-btn" class="btn">
-                ✨ Send a Premium Animated Card ✨
             </button>
         </div>
     </div>
@@ -333,13 +326,11 @@
             const audioControl = document.getElementById('audio-control');
             const muteIcon = document.getElementById('mute-icon');
             const unmuteIcon = document.getElementById('unmute-icon');
-            
-            // Buttons that appear after generation
             const actionButtonsContainer = document.getElementById('action-buttons-container');
             const shareBtn = document.getElementById('share-btn');
-            const premiumWishBtn = document.getElementById('premium-wish-btn'); // The new Ad button
-
+            
             let hasInteracted = false;
+            let adTriggered = false; // State to track if the ad link has been clicked
 
             // --- Robust Audio Handler ---
             async function playAudio() {
@@ -378,25 +369,51 @@
                 }
             });
 
-            // --- Wish Generation ---
+            // --- Main Generate Button Logic ---
             generateBtn.addEventListener('click', () => {
-                handleFirstInteraction();
+                handleFirstInteraction(); // Trigger audio on first click regardless
 
+                // Check if the user's name is entered before doing anything
                 const senderName = senderNameInput.value.trim();
                 if (!senderName) {
-                    alert('Please enter your name.');
+                    alert('Please enter your name first.');
                     return;
                 }
-                const siblingName = siblingNameInput.value.trim();
-                let message = siblingName
-                    ? `Dearest ${siblingName}, sending you love and a promise of protection, always. Happy Raksha Bandhan! With love, ${senderName} 🎉`
-                    : `Wishing you a very Happy Raksha Bandhan! With love from ${senderName} 🎉`;
-                
-                personalizedMessage.textContent = message;
-                greetingCard.classList.add('show');
-                
-                // Show the container with both the Share and the new Ad button
-                actionButtonsContainer.classList.add('show');
+
+                if (!adTriggered) {
+                    // --- FIRST CLICK: Trigger Ad and Countdown ---
+                    adTriggered = true; // Set state to true
+
+                    // Open the ad link
+                    const directLinkUrl = 'https://www.profitableratecpm.com/vnmerg9hjy?key=4715b6411ec977ab0a73730e3307e254';
+                    window.open(directLinkUrl, '_blank');
+
+                    // Start the countdown
+                    let countdown = 5;
+                    generateBtn.disabled = true; // Disable the button
+                    generateBtn.textContent = `Please wait ${countdown}...`;
+
+                    const countdownInterval = setInterval(() => {
+                        countdown--;
+                        generateBtn.textContent = `Please wait ${countdown}...`;
+                        if (countdown <= 0) {
+                            clearInterval(countdownInterval);
+                            generateBtn.disabled = false; // Re-enable the button
+                            generateBtn.textContent = '✅ Generate Your Wish Now ✅';
+                        }
+                    }, 1000); // 1 second interval
+
+                } else {
+                    // --- SECOND CLICK: Generate the actual wish ---
+                    const siblingName = siblingNameInput.value.trim();
+                    let message = siblingName
+                        ? `Dearest ${siblingName}, sending you love and a promise of protection, always. Happy Raksha Bandhan! With love, ${senderName} 🎉`
+                        : `Wishing you a very Happy Raksha Bandhan! With love from ${senderName} 🎉`;
+                    
+                    personalizedMessage.textContent = message;
+                    greetingCard.classList.add('show');
+                    actionButtonsContainer.classList.add('show');
+                }
             });
 
             // --- WhatsApp Sharing ---
@@ -405,12 +422,6 @@
                 const pageUrl = 'https://abhaykumargond.github.io/raksha/index.html';
                 const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message + '\n\nCreate your own wish: ' + pageUrl)}`;
                 window.open(whatsappUrl, '_blank');
-            });
-
-            // --- ADSTERRA DIRECT LINK HANDLER ---
-            premiumWishBtn.addEventListener('click', () => {
-                const directLinkUrl = 'https://www.profitableratecpm.com/vnmerg9hjy?key=4715b6411ec977ab0a73730e3307e254';
-                window.open(directLinkUrl, '_blank');
             });
             
             // --- Twinkling Particle Animation ---
@@ -487,4 +498,4 @@
     </script>
 
 </body>
-</html>
+</html>```
