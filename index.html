@@ -283,4 +283,163 @@
              <svg viewBox="0 0 24 24"><path d="M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M3,9H7L12,4V20L7,15H3V9Z" /></svg>
         </span>
         <span id="mute-icon" style="display:none;">
-             <svg viewBox="0 0 24 24"><path d="M12,4L7,9H3V1
+             <svg viewBox="0 0 24 24"><path d="M12,4L7,9H3V15H7L12,20V4M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23Z" /></svg>
+        </span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const generateBtn = document.getElementById('generate-btn');
+            const shareBtn = document.getElementById('share-btn');
+            const greetingCard = document.getElementById('greeting-card');
+            const personalizedMessage = document.getElementById('personalized-message');
+            const senderNameInput = document.getElementById('senderName');
+            const siblingNameInput = document.getElementById('siblingName');
+            const audio = document.getElementById('background-audio');
+            const audioControl = document.getElementById('audio-control');
+            const muteIcon = document.getElementById('mute-icon');
+            const unmuteIcon = document.getElementById('unmute-icon');
+            
+            let hasInteracted = false;
+
+            // --- Robust Audio Handler ---
+            async function playAudio() {
+                try {
+                    await audio.play();
+                    audio.muted = false;
+                    unmuteIcon.style.display = 'none';
+                    muteIcon.style.display = 'inline-block';
+                } catch (err) {
+                    console.error("Audio playback failed:", err);
+                    audio.muted = true;
+                    unmuteIcon.style.display = 'inline-block';
+                    muteIcon.style.display = 'none';
+                }
+            }
+
+            function handleFirstInteraction() {
+                if (!hasInteracted) {
+                    hasInteracted = true;
+                    playAudio();
+                }
+            }
+            
+            audioControl.addEventListener('click', () => {
+                if (!hasInteracted) {
+                    handleFirstInteraction();
+                    return;
+                }
+                
+                if (audio.muted) {
+                    playAudio();
+                } else {
+                    audio.muted = true;
+                    unmuteIcon.style.display = 'inline-block';
+                    muteIcon.style.display = 'none';
+                }
+            });
+
+            // --- Wish Generation ---
+            generateBtn.addEventListener('click', () => {
+                handleFirstInteraction();
+
+                const senderName = senderNameInput.value.trim();
+                if (!senderName) {
+                    alert('Please enter your name.');
+                    return;
+                }
+                const siblingName = siblingNameInput.value.trim();
+                let message = siblingName
+                    ? `Dearest ${siblingName}, sending you love and a promise of protection, always. Happy Raksha Bandhan! With love, ${senderName} 🎉`
+                    : `Wishing you a very Happy Raksha Bandhan! With love from ${senderName} 🎉`;
+                
+                personalizedMessage.textContent = message;
+                greetingCard.classList.add('show');
+                shareBtn.style.display = 'inline-flex';
+            });
+
+            // --- WhatsApp Sharing ---
+            shareBtn.addEventListener('click', () => {
+                const message = personalizedMessage.textContent;
+                // **FIXED: Using the public URL for sharing**
+                const pageUrl = 'https://abhaykumargond.github.io/raksha/index.html';
+                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message + '\n\nCreate your own wish: ' + pageUrl)}`;
+                window.open(whatsappUrl, '_blank');
+            });
+            
+            // --- Twinkling Particle Animation ---
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let particles = [];
+
+            const particleSettings = {
+                count: 50,
+                maxSize: 2.5,
+                minSize: 1,
+                speed: 0.2,
+            };
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * (particleSettings.maxSize - particleSettings.minSize) + particleSettings.minSize;
+                    this.speedX = (Math.random() - 0.5) * particleSettings.speed;
+                    this.speedY = (Math.random() - 0.5) * particleSettings.speed;
+                    this.opacity = Math.random() * 0.5 + 0.2;
+                    this.fadeSpeed = Math.random() * 0.015 + 0.005;
+                    this.fadingIn = true;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.fadingIn) {
+                        this.opacity += this.fadeSpeed;
+                        if (this.opacity >= 1) this.fadingIn = false;
+                    } else {
+                        this.opacity -= this.fadeSpeed;
+                        if (this.opacity <= 0) this.reset();
+                    }
+                    if (this.x < -this.size || this.x > canvas.width + this.size || this.y < -this.size || this.y > canvas.height + this.size) {
+                        this.reset();
+                    }
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 215, 0, ${this.opacity})`;
+                    ctx.fill();
+                }
+            }
+            
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < particleSettings.count; i++) particles.push(new Particle());
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (const p of particles) {
+                    p.update();
+                    p.draw();
+                }
+                requestAnimationFrame(animateParticles);
+            }
+            
+            initParticles();
+            animateParticles();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                initParticles();
+            });
+        });
+    </script>
+
+</body>
+</html>
