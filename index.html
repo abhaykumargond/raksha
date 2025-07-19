@@ -37,8 +37,13 @@
             align-items: center;
             min-height: 100vh;
             text-align: center;
-            overflow: hidden;
             padding: 15px;
+            /* 
+              THIS IS THE CRITICAL FIX FOR MOBILE SCROLLING.
+              'overflow-x: hidden' prevents horizontal scroll but allows vertical scroll.
+              'overflow: hidden' was preventing ALL scrolling.
+            */
+            overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -177,7 +182,6 @@
             width: 100%; /* Make button full-width */
         }
         
-        /* Visual feedback when button is disabled for countdown */
         #generate-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -186,7 +190,7 @@
         }
         
         #generate-btn:hover:disabled {
-            transform: none; /* Prevent hover effect when disabled */
+            transform: none;
             box-shadow: 0 4px 15px var(--shadow-color);
         }
 
@@ -330,7 +334,7 @@
             const shareBtn = document.getElementById('share-btn');
             
             let hasInteracted = false;
-            let adTriggered = false; // State to track if the ad link has been clicked
+            let adTriggered = false;
 
             // --- Robust Audio Handler ---
             async function playAudio() {
@@ -371,9 +375,8 @@
 
             // --- Main Generate Button Logic ---
             generateBtn.addEventListener('click', () => {
-                handleFirstInteraction(); // Trigger audio on first click regardless
+                handleFirstInteraction();
 
-                // Check if the user's name is entered before doing anything
                 const senderName = senderNameInput.value.trim();
                 if (!senderName) {
                     alert('Please enter your name first.');
@@ -381,16 +384,14 @@
                 }
 
                 if (!adTriggered) {
-                    // --- FIRST CLICK: Trigger Ad and Countdown ---
-                    adTriggered = true; // Set state to true
+                    // FIRST CLICK: Trigger Ad and Countdown
+                    adTriggered = true;
 
-                    // Open the ad link
                     const directLinkUrl = 'https://www.profitableratecpm.com/vnmerg9hjy?key=4715b6411ec977ab0a73730e3307e254';
                     window.open(directLinkUrl, '_blank');
 
-                    // Start the countdown
                     let countdown = 5;
-                    generateBtn.disabled = true; // Disable the button
+                    generateBtn.disabled = true;
                     generateBtn.textContent = `Please wait ${countdown}...`;
 
                     const countdownInterval = setInterval(() => {
@@ -398,13 +399,13 @@
                         generateBtn.textContent = `Please wait ${countdown}...`;
                         if (countdown <= 0) {
                             clearInterval(countdownInterval);
-                            generateBtn.disabled = false; // Re-enable the button
+                            generateBtn.disabled = false;
                             generateBtn.textContent = '✅ Generate Your Wish Now ✅';
                         }
-                    }, 1000); // 1 second interval
+                    }, 1000);
 
                 } else {
-                    // --- SECOND CLICK: Generate the actual wish ---
+                    // SECOND CLICK: Generate the actual wish
                     const siblingName = siblingNameInput.value.trim();
                     let message = siblingName
                         ? `Dearest ${siblingName}, sending you love and a promise of protection, always. Happy Raksha Bandhan! With love, ${senderName} 🎉`
@@ -498,4 +499,4 @@
     </script>
 
 </body>
-</html>```
+</html>
